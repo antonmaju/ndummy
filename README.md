@@ -1,0 +1,4 @@
+dummy
+=====
+
+Dummy object generator
