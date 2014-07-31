@@ -10,24 +10,51 @@ namespace Dummy
 {
     public interface IFactorySpec
     {
-        IPropertySpec For(Type propertyType, string name);
+        Func<object> Constructor { get; }
+
+        IList<PropertyGenerator> PropertyGenerators { get; }
+
+        Action<object> CustomAction { get; }
     }
 
     public interface IFactorySpec<T> : IFactorySpec
     {
-        IPropertySpec<T> For<TProperty>(Expression<Func<T, TProperty>> memberExp);
+        new Func<T> Constructor { get; }
+
+        new Action<T> CustomAction { get; } 
     }
 
-    public abstract class FactorySpec<T> : IFactorySpec<T>
+    public abstract class FactorySpec<T> : IFactorySpec<T> where T:class
     {
-        private readonly List<PropertyFactoryInfo> propertyFactories; 
+        private readonly List<PropertyGenerator> generators; 
 
         protected FactorySpec()
         {
-            propertyFactories = new List<PropertyFactoryInfo>();
+            generators = new List<PropertyGenerator>();
         }
-            
-        public IPropertySpec<T> For<TProperty>(Expression<Func<T, TProperty>> memberExp)
+
+        public Func<T> Constructor { get; private set; }
+
+        Func<object> IFactorySpec.Constructor
+        {
+            get { return ()=> Constructor; }
+        }
+
+        public IList<PropertyGenerator> PropertyGenerators { get { return generators; } }
+
+        public Action<T> CustomAction { get { return DoAfter; } }
+
+        Action<object> IFactorySpec.CustomAction
+        {
+            get { return o=>CustomAction((T) o); }
+        }
+
+        protected void ConstructWith(Func<T> constructor)
+        {
+            Constructor = constructor;
+        }
+
+        protected IPropertySpec<T> For<TProperty>(Expression<Func<T, TProperty>> memberExp)
         {
             if (memberExp.Body.NodeType != ExpressionType.MemberAccess)
                 throw new ArgumentException();
@@ -36,18 +63,25 @@ namespace Dummy
             return new PropertySpec<T>(accessExp.Member);
         } 
 
-        public IPropertySpec For(Type propertyType, string name)
+        protected IPropertySpec For(Type propertyType, string name)
         {
             var specType = typeof (PropertySpec<>).MakeGenericType(propertyType);
 
             var propInfo = typeof (T).GetMember(name);
 
             return Activator.CreateInstance(specType, propInfo) as IPropertySpec;
-        }    
+        }
 
-        public void Configure(IList<PropertyFactoryInfo> list)
+        protected void ConfigureProperties(params PropertyGenerator[] generators)
         {
-            propertyFactories.AddRange(list);
+            this.generators.AddRange(generators);
+        }
+
+        protected virtual void DoAfter(T obj)
+        {
+            
         }
     }
+
+
 }

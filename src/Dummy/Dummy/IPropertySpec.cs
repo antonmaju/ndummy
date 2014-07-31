@@ -9,16 +9,20 @@ namespace Dummy
 {
     public interface IPropertySpec
     {
-        PropertyFactoryInfo GenerateWith(IFactory factory);
+        PropertyGenerator GenerateWith(IFactory factory);
 
-        PropertyFactoryInfo GenerateWith(object value);
+        PropertyGenerator GenerateWith(object value);
+
+        PropertyGenerator GenerateWith(Func<object> func);
     }
 
     public interface IPropertySpec<in T> : IPropertySpec
     {
-        PropertyFactoryInfo GenerateWith(IFactory<T> factory);
+        PropertyGenerator GenerateWith(IFactory<T> factory);
 
-        PropertyFactoryInfo GenerateWith(T value);
+        PropertyGenerator GenerateWith(T value);
+
+        PropertyGenerator GenerateWith(Func<T> func);
     }
 
     public class PropertySpec<T> : IPropertySpec<T>
@@ -30,40 +34,34 @@ namespace Dummy
             this.memberInfo = memberInfo;
         }
 
-        public PropertyFactoryInfo GenerateWith(IFactory<T> factory)
+        public PropertyGenerator GenerateWith(IFactory<T> factory)
         {
-            return new PropertyFactoryInfo
-            {
-                Factory = factory,
-                MemberInfo = memberInfo
-            };
+            return new PropertyByFactoryGenerator(memberInfo, factory);
         }
 
-        public PropertyFactoryInfo GenerateWith(T value)
+        public PropertyGenerator GenerateWith(T value)
         {
-            return new PropertyFactoryInfo
-            {
-                MemberInfo = memberInfo,
-                Value = value
-            };
+            return new PropertyByValueGenerator(memberInfo, value);
         }
 
-        public PropertyFactoryInfo GenerateWith(IFactory factory)
+        public PropertyGenerator GenerateWith(IFactory factory)
         {
-            return new PropertyFactoryInfo
-            {
-                MemberInfo = memberInfo,
-                Factory = factory
-            };
+            return new PropertyByFactoryGenerator(memberInfo, factory);
         }
 
-        public PropertyFactoryInfo GenerateWith(object value)
+        public PropertyGenerator GenerateWith(object value)
         {
-            return new PropertyFactoryInfo
-            {
-                MemberInfo = memberInfo,
-                Value = value
-            };
+            return new PropertyByValueGenerator(memberInfo, value);
+        }
+
+        public PropertyGenerator GenerateWith(Func<T> func)
+        {
+            return new PropertyByFuncGenerator(memberInfo, ()=> func());
+        }
+
+        public PropertyGenerator GenerateWith(Func<object> func)
+        {
+            return new PropertyByFuncGenerator(memberInfo, func);
         }
     }
 }
