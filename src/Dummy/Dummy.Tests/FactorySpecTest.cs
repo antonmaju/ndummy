@@ -12,11 +12,11 @@ namespace Dummy.Tests
     public class FactorySpecTest : FactorySpec<Wanderer>
     {
 
-        private Action<Wanderer> PostAction; 
+        private Action<Wanderer, IDictionary<string,object>> PostAction;
 
-        protected override void DoAfter(Wanderer obj)
+        protected override void DoAfter(Wanderer obj, IDictionary<string, object> tempProperties)
         {
-            PostAction(obj);
+            PostAction(obj, tempProperties);
         }
 
         [Fact]
@@ -50,15 +50,23 @@ namespace Dummy.Tests
         }
 
         [Fact]
+        public void CanAddTempProperties()
+        {
+            var tempProperty = TemporaryProperty.New<string>("element", "fire");
+            ConfigureTemporaryProperties(tempProperty);
+            Assert.Contains(tempProperty, TemporaryProperties);
+        }
+
+        [Fact]
         public void CanAddCustomAction()
         {
             int i = 1;
-            PostAction = w =>
+            PostAction = (w, dict) =>
             {
                 i++;
             };
 
-            CustomAction(new Wanderer());
+            CustomAction(new Wanderer(), null);
             Assert.Equal(2,i);
         }
 

@@ -14,4 +14,22 @@ namespace Dummy.Factories
     {
         new T Create();
     }
+
+    public class Factory<T> : IFactory<T>
+    {
+        public Factory(IFactorySpec<T> spec)
+        {
+            
+        }
+
+        public T Create()
+        {
+            throw new NotImplementedException();
+        }
+
+        object IFactory.Create()
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

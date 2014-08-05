@@ -10,27 +10,31 @@ namespace Dummy
 {
     public interface IFactorySpec
     {
+        IList<PropertyGenerator> TemporaryProperties { get; }
+            
         Func<object> Constructor { get; }
 
         IList<PropertyGenerator> PropertyGenerators { get; }
 
-        Action<object> CustomAction { get; }
+        Action<object, IDictionary<string, object>> CustomAction { get; }
     }
 
     public interface IFactorySpec<T> : IFactorySpec
     {
         new Func<T> Constructor { get; }
 
-        new Action<T> CustomAction { get; } 
+        new Action<T, IDictionary<string, object>> CustomAction { get; } 
     }
 
     public abstract class FactorySpec<T> : IFactorySpec<T> where T:class
     {
-        private readonly List<PropertyGenerator> generators; 
+        private readonly List<PropertyGenerator> generators;
+        private readonly List<PropertyGenerator> tempProperties;  
 
         protected FactorySpec()
         {
             generators = new List<PropertyGenerator>();
+            tempProperties = new List<PropertyGenerator>();
         }
 
         public Func<T> Constructor { get; private set; }
@@ -42,11 +46,13 @@ namespace Dummy
 
         public IList<PropertyGenerator> PropertyGenerators { get { return generators; } }
 
-        public Action<T> CustomAction { get { return DoAfter; } }
+        public IList<PropertyGenerator> TemporaryProperties { get { return tempProperties; } }
 
-        Action<object> IFactorySpec.CustomAction
+        public Action<T, IDictionary<string, object>> CustomAction { get { return DoAfter; } }
+
+        Action<object, IDictionary<string, object>> IFactorySpec.CustomAction
         {
-            get { return o=>CustomAction((T) o); }
+            get { return (o, dict)=>CustomAction((T) o, dict); }
         }
 
         protected void ConstructWith(Func<T> constructor)
@@ -77,7 +83,12 @@ namespace Dummy
             this.generators.AddRange(generators);
         }
 
-        protected virtual void DoAfter(T obj)
+        protected void ConfigureTemporaryProperties(params PropertyGenerator[] generators)
+        {
+            this.tempProperties.AddRange(generators);
+        }
+
+        protected virtual void DoAfter(T obj, IDictionary<string, object> tempProperties)
         {
             
         }

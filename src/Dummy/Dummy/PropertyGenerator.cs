@@ -9,7 +9,12 @@ namespace Dummy
 {
     public abstract class PropertyGenerator
     {
-        public MemberInfo MemberInfo { get; set; }
+       public MemberInfo MemberInfo { get; set; }
+
+        /// <summary>
+        /// This property is used for temporary properties only
+        /// </summary>
+        public string Name { get; set; }
 
         public abstract object Create();
     }
@@ -21,6 +26,12 @@ namespace Dummy
         public PropertyByFactoryGenerator(MemberInfo member, IFactory factory)
         {
             this.MemberInfo = member;
+            this.factory = factory;
+        }
+
+        public PropertyByFactoryGenerator(string name, IFactory factory)
+        {
+            this.Name = name;
             this.factory = factory;
         }
 
@@ -40,6 +51,12 @@ namespace Dummy
             this.value = value;
         }
 
+        public PropertyByValueGenerator(string name, object value)
+        {
+            Name = name;
+            this.value = value;
+        }
+
         public override object Create()
         {
             return value;
@@ -56,9 +73,33 @@ namespace Dummy
             this.func = func;
         }
 
+        public PropertyByFuncGenerator(string name, Func<object> func)
+        {
+            Name = name;
+            this.func = func;
+        }
+
         public override object Create()
         {
             return func();
+        }
+    }
+
+    public static class TemporaryProperty
+    {
+        public static PropertyGenerator New<T>(string name, IFactory<T> factory)
+        {
+            return new PropertyByFactoryGenerator(name, factory);
+        }
+
+        public static PropertyGenerator New<T>(string name, T value)
+        {
+            return new PropertyByValueGenerator(name, value);
+        }
+
+        public static PropertyGenerator New<T>(string name, Func<T> func)
+        {
+            return  new PropertyByFuncGenerator(name, ()=>func);
         }
     }
 }
