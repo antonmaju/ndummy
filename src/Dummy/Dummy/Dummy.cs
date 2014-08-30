@@ -8,20 +8,30 @@ namespace Dummy
 {
     public class Dummy
     {
+        private readonly DummyConfig config;
+
         public Dummy(DummyConfig config)
         {
-            
+            this.config = config;
         }
 
         public IFactory GetFactory(Type type)
         {
-            
-            return null;
+            if(! config.ConfigTable.ContainsKey(type))
+                throw new ArgumentException("Type passed does not spec");
+
+            if (config.ConfigTable[type].Factory != null)
+            {
+                return config.ConfigTable[type].Factory;
+            }
+
+            var factoryType = typeof (Factory<>).MakeGenericType(type);
+            return Activator.CreateInstance(factoryType, config) as IFactory;
         }
 
         public IFactory<T> GetFactory<T>()
         {
-            return null;
+            return GetFactory(typeof (T)) as IFactory<T>;
         }
     }
 
@@ -31,7 +41,9 @@ namespace Dummy
 
         public DummyConfig()
         {
-            configTable = new Dictionary<Type, TypeConfig>();   
+            configTable = new Dictionary<Type, TypeConfig>();
+            MaxDepth = 3;
+            DefaultListCount = 3;
         }
 
         public DummyConfig Configure<T>(IFactorySpec<T> spec)
@@ -46,13 +58,25 @@ namespace Dummy
             return this;
         }
 
-        public DummyConfig Configure<T>(IFactory<T> factory)
+        public DummyConfig Configure<T, TSpec>() where TSpec : IFactorySpec<T>, new()
+        {
+            configTable[typeof(T)] = new TypeConfig() { Spec = new TSpec() };
+            return this;
+        }
+
+        public DummyConfig ConfigureFactory<T>(IFactory<T> factory)
         {
             configTable[typeof(T)] = new TypeConfig() { Factory = factory};
             return this;
         }
 
-        public DummyConfig Configure(Type type, IFactory factory)
+        public DummyConfig ConfigureFactory<T, TFactory>() where TFactory : IFactory<T>, new()
+        {
+            configTable[typeof(T)] = new TypeConfig() { Factory = new TFactory() };
+            return this;
+        }
+
+        public DummyConfig ConfigureFactory(Type type, IFactory factory)
         {
             configTable[type] = new TypeConfig() {Factory = factory};
             return this;
@@ -62,6 +86,10 @@ namespace Dummy
         {
             get { return configTable; }
         }
+
+        public int MaxDepth { get; set; }
+
+        public int DefaultListCount { get; set; }
     }
 
     internal class TypeConfig

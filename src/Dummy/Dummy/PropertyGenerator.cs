@@ -16,7 +16,7 @@ namespace Dummy
         /// </summary>
         public string Name { get; set; }
 
-        public abstract object Create();
+        public abstract object Create(ObjectCreationContext context);
     }
 
     public class PropertyByFactoryGenerator : PropertyGenerator
@@ -35,11 +35,12 @@ namespace Dummy
             this.factory = factory;
         }
 
-        public override object Create()
+        public override object Create(ObjectCreationContext context)
         {
             return factory.Create();
         }
     }
+
 
     public class PropertyByValueGenerator : PropertyGenerator
     {
@@ -57,7 +58,7 @@ namespace Dummy
             this.value = value;
         }
 
-        public override object Create()
+        public override object Create(ObjectCreationContext context)
         {
             return value;
         }
@@ -65,25 +66,26 @@ namespace Dummy
 
     public class PropertyByFuncGenerator : PropertyGenerator
     {
-        private readonly Func<object> func;
+        private readonly Func<ObjectCreationContext, object> func;
 
-        public PropertyByFuncGenerator(MemberInfo member, Func<object> func)
+        public PropertyByFuncGenerator(MemberInfo member, Func<ObjectCreationContext, object> func)
         {
             MemberInfo = member;
             this.func = func;
         }
 
-        public PropertyByFuncGenerator(string name, Func<object> func)
+        public PropertyByFuncGenerator(string name, Func<ObjectCreationContext, object> func)
         {
             Name = name;
             this.func = func;
         }
 
-        public override object Create()
+        public override object Create(ObjectCreationContext context)
         {
-            return func();
+            return func(context);
         }
     }
+
 
     public static class TemporaryProperty
     {
@@ -97,9 +99,9 @@ namespace Dummy
             return new PropertyByValueGenerator(name, value);
         }
 
-        public static PropertyGenerator New<T>(string name, Func<T> func)
+        public static PropertyGenerator New<T>(string name, Func<ObjectCreationContext,T> func)
         {
-            return  new PropertyByFuncGenerator(name, ()=>func);
+            return  new PropertyByFuncGenerator(name, ctx=>func(ctx) );
         }
     }
 }

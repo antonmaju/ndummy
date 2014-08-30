@@ -14,43 +14,55 @@ namespace Dummy
             
         Func<object> Constructor { get; }
 
-        IList<PropertyGenerator> PropertyGenerators { get; }
+        IList<PropertyGenerator> MemberGenerators { get; }
 
-        Action<object, IDictionary<string, object>> CustomAction { get; }
+        IList<MemberInfo> IgnoredMembers { get; }
+            
+        Action<object, ObjectCreationContext> CustomAction { get; }
     }
 
     public interface IFactorySpec<T> : IFactorySpec
     {
         new Func<T> Constructor { get; }
 
-        new Action<T, IDictionary<string, object>> CustomAction { get; } 
+        new Action<T, ObjectCreationContext> CustomAction { get; } 
     }
 
     public abstract class FactorySpec<T> : IFactorySpec<T> where T:class
     {
         private readonly List<PropertyGenerator> generators;
-        private readonly List<PropertyGenerator> tempProperties;  
+        private readonly List<PropertyGenerator> tempProperties;
+        private readonly IList<MemberInfo> ignoredMembers; 
 
         protected FactorySpec()
         {
             generators = new List<PropertyGenerator>();
             tempProperties = new List<PropertyGenerator>();
+            ignoredMembers = new List<MemberInfo>();
         }
 
         public Func<T> Constructor { get; private set; }
 
         Func<object> IFactorySpec.Constructor
         {
-            get { return ()=> Constructor; }
+            get
+            {
+                if(Constructor != null)
+                    return ()=> Constructor();
+
+                return null;
+            }
         }
 
-        public IList<PropertyGenerator> PropertyGenerators { get { return generators; } }
+        public IList<PropertyGenerator> MemberGenerators { get { return generators; } }
 
         public IList<PropertyGenerator> TemporaryProperties { get { return tempProperties; } }
 
-        public Action<T, IDictionary<string, object>> CustomAction { get { return DoAfter; } }
+        public Action<T, ObjectCreationContext> CustomAction { get { return DoAfter; } }
 
-        Action<object, IDictionary<string, object>> IFactorySpec.CustomAction
+        public IList<MemberInfo> IgnoredMembers { get {  return ignoredMembers; } }
+       
+        Action<object, ObjectCreationContext> IFactorySpec.CustomAction
         {
             get { return (o, dict)=>CustomAction((T) o, dict); }
         }
@@ -78,6 +90,16 @@ namespace Dummy
             return Activator.CreateInstance(specType, propInfo) as IPropertySpec;
         }
 
+        protected void Ignore<TProperty>(Expression<Func<T, TProperty>> memberExp)
+        {
+            if (memberExp.Body.NodeType != ExpressionType.MemberAccess)
+                throw new ArgumentException();
+
+            var accessExp = memberExp.Body as MemberExpression;
+            if(accessExp != null)
+                ignoredMembers.Add(accessExp.Member);
+        }
+
         protected void ConfigureProperties(params PropertyGenerator[] generators)
         {
             this.generators.AddRange(generators);
@@ -88,11 +110,9 @@ namespace Dummy
             this.tempProperties.AddRange(generators);
         }
 
-        protected virtual void DoAfter(T obj, IDictionary<string, object> tempProperties)
+        protected virtual void DoAfter(T obj, ObjectCreationContext creationContext)
         {
             
         }
     }
-
-
 }

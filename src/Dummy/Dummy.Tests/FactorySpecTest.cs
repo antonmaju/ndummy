@@ -4,17 +4,17 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using Dummy.Tests.Models;
 using Xunit;
 
 namespace Dummy.Tests
 {
     
-    public class FactorySpecTest : FactorySpec<Wanderer>
+    public class FactorySpecTest : FactorySpec<Soldier>
     {
+        private Action<Soldier, ObjectCreationContext> PostAction;
 
-        private Action<Wanderer, IDictionary<string,object>> PostAction;
-
-        protected override void DoAfter(Wanderer obj, IDictionary<string, object> tempProperties)
+        protected override void DoAfter(Soldier obj, ObjectCreationContext tempProperties)
         {
             PostAction(obj, tempProperties);
         }
@@ -22,7 +22,7 @@ namespace Dummy.Tests
         [Fact]
         public void CanSetConstructor()
         {
-            Func<Wanderer> constructor = ()=> new Wanderer();
+            Func<Soldier> constructor = ()=> new Soldier();
             ConstructWith(constructor);
             Assert.Equal(constructor, Constructor);
         }
@@ -46,7 +46,7 @@ namespace Dummy.Tests
         {
             var propGenerator= For<string>(s => s.Name).GenerateWith("Hello");
             ConfigureProperties(propGenerator);
-            Assert.Contains(propGenerator, PropertyGenerators);
+            Assert.Contains(propGenerator, MemberGenerators);
         }
 
         [Fact]
@@ -66,18 +66,11 @@ namespace Dummy.Tests
                 i++;
             };
 
-            CustomAction(new Wanderer(), null);
+            CustomAction(new Soldier(), null);
             Assert.Equal(2,i);
         }
 
     }
 
-    public class Wanderer
-    {
-        public string Name { get; set; }
-
-        public int Age { get; set; }
-
-        public bool Gender { get; set; }
-    }
+   
 }

@@ -46,6 +46,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FactorySpecTest.cs" />
+    <Compile Include="FactoryTest.cs" />
+    <Compile Include="Models\Soldier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

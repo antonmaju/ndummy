@@ -13,7 +13,7 @@ namespace Dummy
 
         PropertyGenerator GenerateWith(object value);
 
-        PropertyGenerator GenerateWith(Func<object> func);
+        PropertyGenerator GenerateWith(Func<ObjectCreationContext, object> func);
     }
 
     public interface IPropertySpec<in T> : IPropertySpec
@@ -22,7 +22,7 @@ namespace Dummy
 
         PropertyGenerator GenerateWith(T value);
 
-        PropertyGenerator GenerateWith(Func<T> func);
+        PropertyGenerator GenerateWith(Func<ObjectCreationContext,T> func);
     }
 
     public class PropertySpec<T> : IPropertySpec<T>
@@ -37,6 +37,11 @@ namespace Dummy
         public PropertyGenerator GenerateWith(IFactory<T> factory)
         {
             return new PropertyByFactoryGenerator(memberInfo, factory);
+        }
+
+        public PropertyGenerator GenerateWith<TFactory>() where TFactory : IFactory<T>, new()
+        {
+            return new PropertyByFactoryGenerator(memberInfo, Activator.CreateInstance<TFactory>());
         }
 
         public PropertyGenerator GenerateWith(T value)
@@ -54,12 +59,12 @@ namespace Dummy
             return new PropertyByValueGenerator(memberInfo, value);
         }
 
-        public PropertyGenerator GenerateWith(Func<T> func)
+        public PropertyGenerator GenerateWith(Func<ObjectCreationContext, T> func)
         {
-            return new PropertyByFuncGenerator(memberInfo, ()=> func());
+            return new PropertyByFuncGenerator(memberInfo, ctx=> func(ctx));
         }
 
-        public PropertyGenerator GenerateWith(Func<object> func)
+        public PropertyGenerator GenerateWith(Func<ObjectCreationContext,object> func)
         {
             return new PropertyByFuncGenerator(memberInfo, func);
         }
