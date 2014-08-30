@@ -12,11 +12,11 @@ namespace Dummy.Tests
     
     public class FactorySpecTest : FactorySpec<Soldier>
     {
-        private Action<Soldier, ObjectCreationContext> PostAction;
+        private Action<ObjectCreationContext> Action;
 
-        protected override void DoAfter(Soldier obj, ObjectCreationContext tempProperties)
+        protected override void PostAction(ObjectCreationContext ctx)
         {
-            PostAction(obj, tempProperties);
+            Action(ctx);
         }
 
         [Fact]
@@ -61,12 +61,12 @@ namespace Dummy.Tests
         public void CanAddCustomAction()
         {
             int i = 1;
-            PostAction = (w, dict) =>
+            Action = (ctx) =>
             {
                 i++;
             };
 
-            CustomAction(new Soldier(), null);
+            CustomAction(new ObjectCreationContext());
             Assert.Equal(2,i);
         }
 

@@ -6,24 +6,31 @@ using System.Text;
 
 namespace Dummy.Factories
 {
+    /// <summary>
+    /// Interface for factory class
+    /// </summary>
     public interface IFactory
     {
         object Create();
     }
 
+    /// <summary>
+    /// Interface for generic factory class
+    /// </summary>
     public interface IFactory<out T> : IFactory
     {
         new T Create();
     }
 
+    /// <summary>
+    /// Generic factory which is responsible for object creation
+    /// </summary>
+    /// <typeparam name="T">Type to generate</typeparam>
     public class Factory<T> : IFactory<T>
     {
         private readonly DummyConfig config;
         private readonly int level;
         private int counter = 1;
-
-        //private IDictionary<FieldInfo, PropertyGenerator> fieldGenerators;
-        //private IDictionary<PropertyInfo, PropertyGenerator> propertyGenerators;
 
         class GeneratorInfo
         {
@@ -31,13 +38,23 @@ namespace Dummy.Factories
             public IDictionary<PropertyInfo, PropertyGenerator> PropertyGenerators { get; set; }
         }
 
-        private Lazy<GeneratorInfo> memberGenerator; 
+        private Lazy<GeneratorInfo> memberGenerator;
 
 
-        public Factory(DummyConfig config) :this(config, 1)
-        {    
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Factory{T}"/> class.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        public Factory(DummyConfig config)
+            : this(config, 1)
+        {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Factory{T}"/> class.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <param name="level">Factory level.</param>
         public Factory(DummyConfig config, int level)
         {
             this.config = config;
@@ -46,6 +63,10 @@ namespace Dummy.Factories
             memberGenerator = new Lazy<GeneratorInfo>(Prepare);
         }
 
+        /// <summary>
+        /// Creates GeneratorInfo which is needed for object creation
+        /// </summary>
+        /// <returns>GeneratorInfo</returns>
         private GeneratorInfo Prepare()
         {
             Type currentType = typeof(T);
@@ -78,7 +99,7 @@ namespace Dummy.Factories
                                 new PropertyByFactoryGenerator(fieldInfo, config.ConfigTable[fieldType].Factory));
                         else if (config.ConfigTable[fieldType].Spec != null)
                         {
-                            var factoryType = typeof (Factory<>).MakeGenericType(fieldType);
+                            var factoryType = typeof(Factory<>).MakeGenericType(fieldType);
                             var factory = Activator.CreateInstance(factoryType, config, level + 1) as IFactory;
                             fieldGenerators.Add(fieldInfo, new PropertyByFactoryGenerator(fieldInfo, factory));
                         }
@@ -88,11 +109,11 @@ namespace Dummy.Factories
                         var arguments = fieldType.GetGenericArguments();
                         if (arguments.Length == 1)
                         {
-                            var enumerableType = typeof (IEnumerable<>).MakeGenericType(arguments);
+                            var enumerableType = typeof(IEnumerable<>).MakeGenericType(arguments);
                             if (enumerableType.IsAssignableFrom(fieldType))
                             {
                                 var factoryType = typeof(ListFactory<>).MakeGenericType(arguments);
-                                var factory = Activator.CreateInstance(factoryType, config, config.DefaultListCount, level + 1) as IFactory;
+                                var factory = Activator.CreateInstance(factoryType, config, config.ListCount, level + 1) as IFactory;
                                 fieldGenerators.Add(fieldInfo, new PropertyByFactoryGenerator(fieldInfo, factory));
                             }
                         }
@@ -114,7 +135,7 @@ namespace Dummy.Factories
                     var propertyType = propertyInfo.PropertyType;
                     if (config.ConfigTable.ContainsKey(propertyType) && (propertyType.IsSimpleType() || level < config.MaxDepth))
                     {
-                        if (config.ConfigTable[propertyType].Factory != null )
+                        if (config.ConfigTable[propertyType].Factory != null)
                             propertyGenerators.Add(propertyInfo, new PropertyByFactoryGenerator(propertyInfo, config.ConfigTable[propertyType].Factory));
                         else if (config.ConfigTable[propertyType].Spec != null)
                         {
@@ -132,7 +153,7 @@ namespace Dummy.Factories
                             if (enumerableType.IsAssignableFrom(propertyType))
                             {
                                 var factoryType = typeof(ListFactory<>).MakeGenericType(arguments);
-                                var factory = Activator.CreateInstance(factoryType, config, config.DefaultListCount, level + 1) as IFactory;
+                                var factory = Activator.CreateInstance(factoryType, config, config.ListCount, level + 1) as IFactory;
                                 propertyGenerators.Add(propertyInfo, new PropertyByFactoryGenerator(propertyInfo, factory));
                             }
                         }
@@ -147,6 +168,11 @@ namespace Dummy.Factories
             };
         }
 
+        /// <summary>
+        /// Creates instance of T.
+        /// </summary>
+        /// <returns>new instance</returns>
+        /// <exception cref="System.Exception">Type doesn't have spec</exception>
         public T Create()
         {
             //create instance
@@ -156,7 +182,7 @@ namespace Dummy.Factories
             //initialize post action
             //return instance
 
-            Type currentType = typeof (T);
+            Type currentType = typeof(T);
             TypeConfig typeConfig = null;
 
             if (config.ConfigTable.ContainsKey(currentType))
@@ -170,13 +196,13 @@ namespace Dummy.Factories
             T instance;
 
             if (typeConfig != null && typeConfig.Spec.Constructor != null)
-                instance = (T) typeConfig.Spec.Constructor.Invoke();
+                instance = (T)typeConfig.Spec.Constructor.Invoke();
             else
                 instance = Activator.CreateInstance<T>();
 
             var tempGenerators = typeConfig.Spec.TemporaryProperties;
             var tempData = new Dictionary<string, object>();
-            var creationContext = new ObjectCreationContext{CurrentObject = instance, TempData = tempData, Index = counter};
+            var creationContext = new ObjectCreationContext { CurrentObject = instance, TempData = tempData, Index = counter };
 
             if (tempGenerators.Count > 0)
             {
@@ -195,9 +221,9 @@ namespace Dummy.Factories
             {
                 pair.Key.SetValue(instance, pair.Value.Create(creationContext), null);
             }
-            
+
             //post action
-            typeConfig.Spec.CustomAction(instance, creationContext);
+            typeConfig.Spec.CustomAction(creationContext);
             counter++;
 
             return instance;
@@ -209,15 +235,27 @@ namespace Dummy.Factories
         }
     }
 
+    /// <summary>
+    /// Factory method wrapper
+    /// </summary>
+    /// <typeparam name="T">Result type</typeparam>
     public class FactoryMethod<T> : IFactory<T>
     {
         private readonly Func<T> func;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FactoryMethod{T}"/> class.
+        /// </summary>
+        /// <param name="func">Func to generate T.</param>
         public FactoryMethod(Func<T> func)
         {
             this.func = func;
         }
 
+        /// <summary>
+        /// Creates new instance of T.
+        /// </summary>
+        /// <returns>new instance of T</returns>
         public T Create()
         {
             return func();
@@ -229,22 +267,42 @@ namespace Dummy.Factories
         }
     }
 
+    /// <summary>
+    /// This class generates list of T
+    /// </summary>
+    /// <typeparam name="T">Result type</typeparam>
     public class ListFactory<T> : IFactory<IList<T>>
     {
         private IFactory<T> factory;
 
         private int listCount;
 
-        public ListFactory(DummyConfig config) : this(config, config.DefaultListCount)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ListFactory{T}"/> class.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        public ListFactory(DummyConfig config)
+            : this(config, config.ListCount)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ListFactory{T}"/> class.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <param name="listCount">The list count.</param>
         public ListFactory(DummyConfig config, int listCount)
-            : this(config, config.DefaultListCount,2)
+            : this(config, config.ListCount, 2)
         {
-         
+
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ListFactory{T}"/> class.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <param name="listCount">The list count.</param>
+        /// <param name="level">The factory level.</param>
         public ListFactory(DummyConfig config, int listCount, int level)
         {
             this.listCount = listCount;
@@ -257,11 +315,15 @@ namespace Dummy.Factories
                 factory = new Factory<T>(config, level);
         }
 
+        /// <summary>
+        /// Creates list of T.
+        /// </summary>
+        /// <returns>list of T</returns>
         public IList<T> Create()
         {
             var list = new List<T>();
-            
-            for(int i=0; i<listCount; i++)
+
+            for (int i = 0; i < listCount; i++)
                 list.Add(factory.Create());
 
             return list;

@@ -9,73 +9,8 @@ using Xunit;
 
 namespace Dummy.Tests
 {
-    //public class FactoryTest
-    //{
-    //    [Fact]
-    //    public void Should_Create_Object_By_Activator_If_Constructor_Not_Supplied()
-    //    {
-            
-    //    }
-
-    //    [Fact]
-    //    public void Should_Create_Object_By_Constructor_If_Supplied()
-    //    {
-
-    //    }
-
-    //    [Fact]
-    //    public void Should_Assign_Temp_Properties_First()
-    //    {
-
-    //    }
-
-    //    [Fact]
-    //    public void Should_Be_Able_To_Assign_Temp_Properties_From_Creation_Context()
-    //    {
-
-
-    //    }
-
-    //    [Fact]
-    //    public void Should_Be_Able_To_AssignPublicProperties()
-    //    {
-
-    //    }
-
-    //    [Fact]
-    //    public void Should_Be_Able_To_Assign_Public_Fields()
-    //    {
-
-    //    }
-
-    //    [Fact]
-    //    public void Should_Not_Generate_Value_For_IgnoredMembers()
-    //    {
-
-    //    }
-
-    //    [Fact]
-    //    public void Should_Use_ExistingFactory_If_MemberType_Exists_In_ConfigTable()
-    //    {
-
-    //    }
-
-    //    [Fact]
-    //    public void Should_Use_Factory_If_MemberTypeSpec_Exists_In_ConfigTable()
-    //    {
-            
-    //    }
-
-    //    [Fact]
-    //    public void Should_Invoke_Post_Action()
-    //    {
-            
-    //    }
-    //}
-
     public class FactoryTest
     {
-
         #region object creation
 
         public bool isConstructorCalled = false;
@@ -294,7 +229,7 @@ namespace Dummy.Tests
             var instance = factory.Create();
 
             Assert.NotNull(instance.Soldiers);
-            Assert.Equal(config.DefaultListCount, instance.Soldiers.Count());
+            Assert.Equal(config.ListCount, instance.Soldiers.Count());
 
             foreach (var soldier in instance.Soldiers)
             {
@@ -336,7 +271,7 @@ namespace Dummy.Tests
         [Fact]
         public void Should_Not_Create_Chained_Object_More_Than_Allowed_Level()
         {
-            string value = "String1";
+            const string value = "String1";
             var config = new DummyConfig()
                 .ConfigureFactory(new FactoryMethod<string>(() => value))
                 .Configure(new FriendlySoldierSpec1());
@@ -347,6 +282,37 @@ namespace Dummy.Tests
             Assert.NotNull(level2Soldier);
             Assert.Equal(value, level2Soldier.Name);
             Assert.Null(level2Soldier.Friend);
+        }
+
+        #endregion
+
+        #region post action
+
+        public class SoldierSpec8 : FactorySpec<Soldier>
+        {
+            private Action<ObjectCreationContext> action;
+
+            public SoldierSpec8(Action<ObjectCreationContext> action)
+            {
+                this.action = action;
+            }
+
+            protected override void PostAction(ObjectCreationContext creationContext)
+            {
+                action(creationContext);
+            }
+        }
+
+        [Fact]
+        public void Should_Invoke_Post_Action()
+        {
+            bool invoked = false;
+            Action<ObjectCreationContext> action = ctx => { invoked = true; };
+            var config = new DummyConfig()
+                .Configure(new SoldierSpec8(action));
+            var factory = new Factory<Soldier>(config);
+            var instance = factory.Create();
+            Assert.Equal(true, invoked);
         }
 
         #endregion
