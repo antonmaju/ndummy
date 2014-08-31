@@ -16,7 +16,7 @@ namespace Dummy
         /// <value>
         /// The temporary data.
         /// </value>
-        public IDictionary<string, object> TempData { get; set; }
+        public IDictionary<string, object> TempProperties { get; set; }
 
         /// <summary>
         /// Gets or sets the current object.

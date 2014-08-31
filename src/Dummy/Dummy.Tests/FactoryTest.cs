@@ -74,7 +74,7 @@ namespace Dummy.Tests
                     TemporaryProperty.New<int>("Data1", 9),
                     TemporaryProperty.New<int>("Data2", ctx =>
                     {
-                        values[0] = Convert.ToInt32(ctx.TempData["Data1"]);
+                        values[0] = Convert.ToInt32(ctx.TempProperties["Data1"]);
                         return values[0];
                     })
                     );

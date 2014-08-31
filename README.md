@@ -3,6 +3,8 @@ Dummy
 
 Dummy is a .NET portable class library for generating object by spec.
 
+[![Build status](https://ci.appveyor.com/api/projects/status/2so48epc1ulbvave/branch/master)](https://ci.appveyor.com/project/AntonSetiawan/dummy/branch/master)
+
 ##Usage ##
 
 <ul>

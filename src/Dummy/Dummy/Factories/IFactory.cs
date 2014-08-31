@@ -202,7 +202,7 @@ namespace Dummy.Factories
 
             var tempGenerators = typeConfig.Spec.TemporaryProperties;
             var tempData = new Dictionary<string, object>();
-            var creationContext = new ObjectCreationContext { CurrentObject = instance, TempData = tempData, Index = counter };
+            var creationContext = new ObjectCreationContext { CurrentObject = instance, TempProperties = tempData, Index = counter };
 
             if (tempGenerators.Count > 0)
             {

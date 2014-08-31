@@ -7,6 +7,9 @@ using Dummy.Factories;
 
 namespace Dummy
 {
+    /// <summary>
+    /// Represents generator spec for property and field
+    /// </summary>
     public interface IPropertySpec
     {
         PropertyGenerator GenerateWith(IFactory factory);
@@ -16,19 +19,31 @@ namespace Dummy
         PropertyGenerator GenerateWith(Func<ObjectCreationContext, object> func);
     }
 
+    /// <summary>
+    /// Represents generic generator spec
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public interface IPropertySpec<in T> : IPropertySpec
     {
         PropertyGenerator GenerateWith(IFactory<T> factory);
 
         PropertyGenerator GenerateWith(T value);
 
-        PropertyGenerator GenerateWith(Func<ObjectCreationContext,T> func);
+        PropertyGenerator GenerateWith(Func<ObjectCreationContext, T> func);
     }
 
+    /// <summary>
+    /// Represents generic generator spec for property and field
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class PropertySpec<T> : IPropertySpec<T>
     {
         private readonly MemberInfo memberInfo;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PropertySpec{T}"/> class.
+        /// </summary>
+        /// <param name="memberInfo">The member information.</param>
         public PropertySpec(MemberInfo memberInfo)
         {
             this.memberInfo = memberInfo;
@@ -61,10 +76,10 @@ namespace Dummy
 
         public PropertyGenerator GenerateWith(Func<ObjectCreationContext, T> func)
         {
-            return new PropertyByFuncGenerator(memberInfo, ctx=> func(ctx));
+            return new PropertyByFuncGenerator(memberInfo, ctx => func(ctx));
         }
 
-        public PropertyGenerator GenerateWith(Func<ObjectCreationContext,object> func)
+        public PropertyGenerator GenerateWith(Func<ObjectCreationContext, object> func)
         {
             return new PropertyByFuncGenerator(memberInfo, func);
         }
