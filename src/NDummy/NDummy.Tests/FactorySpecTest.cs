@@ -4,10 +4,10 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using Dummy.Tests.Models;
+using NDummy.Tests.Models;
 using Xunit;
 
-namespace Dummy.Tests
+namespace NDummy.Tests
 {
     
     public class FactorySpecTest : FactorySpec<Soldier>

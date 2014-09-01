@@ -1,9 +1,7 @@
-Dummy
+NDummy
 =====
 
-Dummy is a .NET portable class library for generating object by spec.
-
-[![Build status](https://ci.appveyor.com/api/projects/status/2so48epc1ulbvave/branch/master)](https://ci.appveyor.com/project/AntonSetiawan/dummy/branch/master)
+NDummy is a .NET portable class library for generating object by spec.
 
 ##Usage ##
 
@@ -26,18 +24,18 @@ Dummy is a .NET portable class library for generating object by spec.
 </li> 
 <li>Register specs
 	
-    var config = new DummyConfig()
+    var config = new FactoriesConfig()
 		.Register<Warrior, WarriorSpec>()
 		.Register<Weapon, WeaponSpec>();
 
-	var dummy = new Dummy(config);
+	var manager = new FactoryManager(config);
 
 </li>	
 <li>Get factory
     
-	var factory = dummy.GetFactory<Warrior>();
-	newInstance = factory.Create(); //create new Warrior instance 
+	var factory = manager.GetFactory<Warrior>();
+	var newInstance = factory.Create(); //create new Warrior instance 
 </li>
 
 
-For detailed documentation please visit Dummy project pages.
+For detailed documentation please visit NDummy project pages.

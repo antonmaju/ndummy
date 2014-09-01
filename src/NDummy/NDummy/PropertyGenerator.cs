@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Dummy.Factories;
+using NDummy.Factories;
 
-namespace Dummy
+namespace NDummy
 {
     /// <summary>
     /// Represents property / field generator

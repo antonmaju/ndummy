@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Dummy.Factories;
-using Dummy.Tests.Models;
+using NDummy.Factories;
+using NDummy.Tests.Models;
 using Xunit;
 
-namespace Dummy.Tests
+namespace NDummy.Tests
 {
     public class FactoryTest
     {
@@ -35,7 +35,7 @@ namespace Dummy.Tests
         [Fact]
         public void Should_Create_Object_By_Activator_If_Constructor_Not_Supplied()
         {
-            var config = new DummyConfig()
+            var config = new FactoriesConfig()
                 .Configure<Soldier, SoldierSpec1>();
 
             var factory = new Factory<Soldier>(config);
@@ -47,7 +47,7 @@ namespace Dummy.Tests
         public void Should_Create_Object_ByFactoryMethod_If_Supplied()
         {
             var signal = new[] {false};
-            var config = new DummyConfig()
+            var config = new FactoriesConfig()
                .Configure<Soldier>(new SoldierSpec2(signal));
             var factory = new Factory<Soldier>(config);
             var instance = factory.Create();
@@ -122,7 +122,7 @@ namespace Dummy.Tests
         public void Should_Be_Able_To_Assign_Temporary_Property()
         {
             int[] values = new[] {0};
-            var config = new DummyConfig()
+            var config = new FactoriesConfig()
                 .Configure(new SoldierSpec3(values));
             var factory = new Factory<Soldier>(config);
             var instance = factory.Create();
@@ -133,7 +133,7 @@ namespace Dummy.Tests
         public void Should_Be_Able_To_Assign_Public_Property()
         {
             string name = "csharp";
-            var config = new DummyConfig()
+            var config = new FactoriesConfig()
                 .Configure(new SoldierSpec4(name));
             var factory = new Factory<Soldier>(config);
             var instance = factory.Create();
@@ -144,7 +144,7 @@ namespace Dummy.Tests
         public void Should_Be_Able_To_Assign_Public_Field()
         {
             string address = "somewhere";
-            var config = new DummyConfig()
+            var config = new FactoriesConfig()
                 .Configure(new SoldierSpec5(address));
             var factory = new Factory<Soldier>(config);
             var instance = factory.Create();
@@ -156,7 +156,7 @@ namespace Dummy.Tests
         public void Should_Not_Assign_Values_To_IgnoredMembers()
         {
             string value = "String1";
-            var config = new DummyConfig()
+            var config = new FactoriesConfig()
                 .ConfigureFactory(new FactoryMethod<string>(() => value))
                 .Configure(new SoldierSpec6());
             var factory = new Factory<Soldier>(config);
@@ -169,7 +169,7 @@ namespace Dummy.Tests
         public void Should_Use_Factory_If_MemberType_Exists_In_Config()
         {
             string value = "String1";
-            var config = new DummyConfig()
+            var config = new FactoriesConfig()
                 .ConfigureFactory(new FactoryMethod<string>(() => value))
                 .Configure(new SoldierSpec1());
 
@@ -183,7 +183,7 @@ namespace Dummy.Tests
         public void Should_Use_Factory_If_MemberTypeSpec_Exists_In_Config()
         {
             string value = "js";
-            var config = new DummyConfig()
+            var config = new FactoriesConfig()
             .Configure<Lieutenant, LieutenantSpec1>()
             .Configure(new SoldierSpec4(value));
 
@@ -221,7 +221,7 @@ namespace Dummy.Tests
         [Fact]
         public void Should_Be_Able_To_Create_Enumerable_If_Type_Exists_In_Config()
         {
-            var config = new DummyConfig()
+            var config = new FactoriesConfig()
                 .Configure<Soldier, SoldierSpec7>()
                 .Configure<Captain, CaptainSpec1>();
 
@@ -255,7 +255,7 @@ namespace Dummy.Tests
         public void Should_Be_Able_To_Create_MultiLevel()
         {
             string value = "String1";
-            var config = new DummyConfig()
+            var config = new FactoriesConfig()
                 .ConfigureFactory(new FactoryMethod<string>(() => value))
                 .Configure(new FriendlySoldierSpec1());
             var factory = new Factory<FriendlySoldier>(config);
@@ -272,7 +272,7 @@ namespace Dummy.Tests
         public void Should_Not_Create_Chained_Object_More_Than_Allowed_Level()
         {
             const string value = "String1";
-            var config = new DummyConfig()
+            var config = new FactoriesConfig()
                 .ConfigureFactory(new FactoryMethod<string>(() => value))
                 .Configure(new FriendlySoldierSpec1());
             config.MaxDepth = 2;
@@ -308,7 +308,7 @@ namespace Dummy.Tests
         {
             bool invoked = false;
             Action<ObjectCreationContext> action = ctx => { invoked = true; };
-            var config = new DummyConfig()
+            var config = new FactoriesConfig()
                 .Configure(new SoldierSpec8(action));
             var factory = new Factory<Soldier>(config);
             var instance = factory.Create();

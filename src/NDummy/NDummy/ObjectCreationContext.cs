@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Dummy
+namespace NDummy
 {
     /// <summary>
     /// Holds information of the current creation context

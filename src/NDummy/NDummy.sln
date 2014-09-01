@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dummy", "Dummy\Dummy.csproj", "{DAAF2D35-C537-4808-8A9F-F6E8BA568967}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDummy", "NDummy\NDummy.csproj", "{DAAF2D35-C537-4808-8A9F-F6E8BA568967}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dummy.Tests", "Dummy.Tests\Dummy.Tests.csproj", "{7F339286-3A4D-42B2-96DD-7E863BC92A8A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NDummy.Tests", "NDummy.Tests\NDummy.Tests.csproj", "{7F339286-3A4D-42B2-96DD-7E863BC92A8A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

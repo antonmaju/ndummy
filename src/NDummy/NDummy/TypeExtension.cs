@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Dummy
+namespace NDummy
 {
     /// <summary>
     /// from https://gist.github.com/jonathanconway/3330614

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace Dummy.Factories
+namespace NDummy.Factories
 {
     /// <summary>
     /// Interface for factory class
@@ -28,7 +28,7 @@ namespace Dummy.Factories
     /// <typeparam name="T">Type to generate</typeparam>
     public class Factory<T> : IFactory<T>
     {
-        private readonly DummyConfig config;
+        private readonly FactoriesConfig config;
         private readonly int level;
         private int counter = 1;
 
@@ -45,7 +45,7 @@ namespace Dummy.Factories
         /// Initializes a new instance of the <see cref="Factory{T}"/> class.
         /// </summary>
         /// <param name="config">The configuration.</param>
-        public Factory(DummyConfig config)
+        public Factory(FactoriesConfig config)
             : this(config, 1)
         {
         }
@@ -55,7 +55,7 @@ namespace Dummy.Factories
         /// </summary>
         /// <param name="config">The configuration.</param>
         /// <param name="level">Factory level.</param>
-        public Factory(DummyConfig config, int level)
+        public Factory(FactoriesConfig config, int level)
         {
             this.config = config;
             this.level = level;
@@ -281,7 +281,7 @@ namespace Dummy.Factories
         /// Initializes a new instance of the <see cref="ListFactory{T}"/> class.
         /// </summary>
         /// <param name="config">The configuration.</param>
-        public ListFactory(DummyConfig config)
+        public ListFactory(FactoriesConfig config)
             : this(config, config.ListCount)
         {
         }
@@ -291,7 +291,7 @@ namespace Dummy.Factories
         /// </summary>
         /// <param name="config">The configuration.</param>
         /// <param name="listCount">The list count.</param>
-        public ListFactory(DummyConfig config, int listCount)
+        public ListFactory(FactoriesConfig config, int listCount)
             : this(config, config.ListCount, 2)
         {
 
@@ -303,7 +303,7 @@ namespace Dummy.Factories
         /// <param name="config">The configuration.</param>
         /// <param name="listCount">The list count.</param>
         /// <param name="level">The factory level.</param>
-        public ListFactory(DummyConfig config, int listCount, int level)
+        public ListFactory(FactoriesConfig config, int listCount, int level)
         {
             this.listCount = listCount;
 

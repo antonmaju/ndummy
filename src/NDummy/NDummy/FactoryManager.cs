@@ -2,22 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Dummy.Factories;
+using NDummy.Factories;
 
-namespace Dummy
+namespace NDummy
 {
     /// <summary>
     /// Provides a way to get factory by its spec 
+    /// I can name it to more reasonable name but why not use a weird name here
     /// </summary>
-    public class Dummy
+    public class FactoryManager
     {
-        private readonly DummyConfig config;
+        private readonly FactoriesConfig config;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Dummy"/> class.
+        /// Initializes a new instance of the <see cref="FactoryManager"/> class.
         /// </summary>
         /// <param name="config">The configuration.</param>
-        public Dummy(DummyConfig config)
+        public FactoryManager(FactoriesConfig config)
         {
             this.config = config;
         }
@@ -56,14 +57,14 @@ namespace Dummy
     /// <summary>
     /// This class holds types configuration
     /// </summary>
-    public class DummyConfig
+    public class FactoriesConfig
     {
         private IDictionary<Type, TypeConfig> configTable;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DummyConfig"/> class.
+        /// Initializes a new instance of the <see cref="FactoriesConfig"/> class.
         /// </summary>
-        public DummyConfig()
+        public FactoriesConfig()
         {
             configTable = new Dictionary<Type, TypeConfig>();
             MaxDepth = 3;
@@ -76,7 +77,7 @@ namespace Dummy
         /// <typeparam name="T"></typeparam>
         /// <param name="spec">The spec.</param>
         /// <returns></returns>
-        public DummyConfig Configure<T>(IFactorySpec<T> spec)
+        public FactoriesConfig Configure<T>(IFactorySpec<T> spec)
         {
             configTable[typeof (T)] = new TypeConfig() {Spec = spec};
             return this;
@@ -88,7 +89,7 @@ namespace Dummy
         /// <param name="type">The type.</param>
         /// <param name="spec">The spec.</param>
         /// <returns></returns>
-        public DummyConfig Configure(Type type, IFactorySpec spec)
+        public FactoriesConfig Configure(Type type, IFactorySpec spec)
         {
             configTable[type] = new TypeConfig() { Spec = spec };
             return this;
@@ -100,7 +101,7 @@ namespace Dummy
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="TSpec">The type of the spec.</typeparam>
         /// <returns></returns>
-        public DummyConfig Configure<T, TSpec>() where TSpec : IFactorySpec<T>, new()
+        public FactoriesConfig Configure<T, TSpec>() where TSpec : IFactorySpec<T>, new()
         {
             configTable[typeof(T)] = new TypeConfig() { Spec = new TSpec() };
             return this;
@@ -112,7 +113,7 @@ namespace Dummy
         /// <typeparam name="T"></typeparam>
         /// <param name="factory">The factory.</param>
         /// <returns></returns>
-        public DummyConfig ConfigureFactory<T>(IFactory<T> factory)
+        public FactoriesConfig ConfigureFactory<T>(IFactory<T> factory)
         {
             configTable[typeof(T)] = new TypeConfig() { Factory = factory};
             return this;
@@ -124,7 +125,7 @@ namespace Dummy
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="TFactory">The type of the factory.</typeparam>
         /// <returns></returns>
-        public DummyConfig ConfigureFactory<T, TFactory>() where TFactory : IFactory<T>, new()
+        public FactoriesConfig ConfigureFactory<T, TFactory>() where TFactory : IFactory<T>, new()
         {
             configTable[typeof(T)] = new TypeConfig() { Factory = new TFactory() };
             return this;
@@ -136,7 +137,7 @@ namespace Dummy
         /// <param name="type">The type.</param>
         /// <param name="factory">The factory.</param>
         /// <returns></returns>
-        public DummyConfig ConfigureFactory(Type type, IFactory factory)
+        public FactoriesConfig ConfigureFactory(Type type, IFactory factory)
         {
             configTable[type] = new TypeConfig() {Factory = factory};
             return this;
