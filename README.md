@@ -3,6 +3,14 @@ NDummy
 
 NDummy is a .NET portable class library for generating object by spec.
 
+[![Build status](https://ci.appveyor.com/api/projects/status/w5sqhvllq8nst7i6/branch/master)](https://ci.appveyor.com/project/AntonSetiawan/ndummy/branch/master)
+
+##Installation##
+
+To install NDummy, run the following command in the Package Manager Console
+
+    PM> Install-Package NDummy
+
 ##Usage ##
 
 <ul>
