@@ -46,4 +46,4 @@ To install NDummy, run the following command in the Package Manager Console
 </li>
 
 
-For detailed documentation please visit NDummy project pages.
+Please visit [wiki](https://github.com/antonmaju/ndummy/wiki) for more information.
